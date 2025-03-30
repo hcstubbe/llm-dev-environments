@@ -17,18 +17,21 @@ RUN pip install --upgrade pip && \
     pip install --upgrade --no-cache-dir "git+https://github.com/huggingface/transformers.git" && \
     pip install pandas sqlalchemy trl peft accelerate bitsandbytes ollama && \
     pip install "unsloth[cu124-ampere-torch250] @ git+https://github.com/unslothai/unsloth.git"
+    # For alternative CUDA/Torch versions, you can use:
     # pip install "unsloth[cu121-torch240] @ git+https://github.com/unslothai/unsloth.git"
 
 # Add llama.cpp instructions
-RUN mkdir -p /home/defaultuser/llama_cpp_dir && \
-    cd /home/defaultuser/llama_cpp_dir && \
+RUN mkdir -p /home/defaultuser/ && \
+    cd /home/defaultuser/ && \
     git clone https://github.com/ggerganov/llama.cpp && \
     cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=ON -DGGML_CUDA=ON -DLLAMA_CURL=ON && \
     cmake --build llama.cpp/build --config Release -j --clean-first --target llama-quantize llama-cli llama-gguf-split && \
     cp llama.cpp/build/bin/llama-* ./llama.cpp/
-    
-# Create a default user
-RUN useradd -ms /bin/bash defaultuser
+
+# Create a default user and adjust directory ownership for proper access
+RUN useradd -ms /bin/bash defaultuser && \
+    chown -R defaultuser:defaultuser /home/defaultuser
+
 USER defaultuser
 
 # Set the working directory
@@ -37,4 +40,4 @@ WORKDIR /home/defaultuser
 ENV OLLAMA_MODELS=/home/defaultuser/.ollama/models
 
 # Start the container with an endless running task
-CMD [ "/bin/sh" , "-c", "tail -f /dev/null" ]
+CMD [ "/bin/sh", "-c", "tail -f /dev/null" ]
