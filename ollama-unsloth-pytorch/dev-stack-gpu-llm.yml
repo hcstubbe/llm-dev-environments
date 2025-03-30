@@ -1,0 +1,29 @@
+services:      
+  unsloth:
+    image: hstubbe/ollama_unsloth:pytorch2.5.0-cuda12.4-cudnn9-devel
+    restart: always
+    networks:
+      - llm-net-dev
+    volumes:
+      - ${DOCKER_DATA_PATH}/:/data
+      - ${DOCKER_DATA_PATH_2}/:/data2
+      # Define DOCKER_DATA_PATH and DOCKER_DATA_PATH_2 environment variables before running docker compose
+      # Example .env (Linux):
+      # DOCKER_DATA_PATH=/path/to/your/data
+      # DOCKER_DATA_PATH_2=/path/to/your/data2
+      # UID=1000
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: tail -f /dev/null
+      
+networks:
+  llm-net-dev:
+    external: false
