@@ -17,9 +17,7 @@ RUN pip install --upgrade pip && \
     pip install --upgrade --no-cache-dir "git+https://github.com/huggingface/transformers.git" && \
     pip install pandas sqlalchemy trl peft accelerate bitsandbytes ollama && \
     pip install "unsloth[cu124-ampere-torch250] @ git+https://github.com/unslothai/unsloth.git"
-    # For alternative CUDA/Torch versions, you can use:
-    # pip install "unsloth[cu121-torch240] @ git+https://github.com/unslothai/unsloth.git"
-
+    
 # Add llama.cpp instructions
 RUN mkdir -p /home/defaultuser/ && \
     cd /home/defaultuser/ && \
