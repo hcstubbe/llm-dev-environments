@@ -18,8 +18,15 @@ RUN pip install --upgrade pip && \
     pip install pandas sqlalchemy trl peft accelerate bitsandbytes ollama && \
     pip install "unsloth[cu124-ampere-torch250] @ git+https://github.com/unslothai/unsloth.git"
     # pip install "unsloth[cu121-torch240] @ git+https://github.com/unslothai/unsloth.git"
-    
 
+# Add llama.cpp instructions
+RUN mkdir -p /home/defaultuser/llama_cpp_dir && \
+    cd /home/defaultuser/llama_cpp_dir && \
+    git clone https://github.com/ggerganov/llama.cpp && \
+    cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=ON -DGGML_CUDA=ON -DLLAMA_CURL=ON && \
+    cmake --build llama.cpp/build --config Release -j --clean-first --target llama-quantize llama-cli llama-gguf-split && \
+    cp llama.cpp/build/bin/llama-* ./llama.cpp/
+    
 # Create a default user
 RUN useradd -ms /bin/bash defaultuser
 USER defaultuser
