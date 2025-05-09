@@ -14,8 +14,8 @@ RUN wget -qO - https://ollama.com/install.sh | bash
 
 # Install Python packages
 RUN pip install --upgrade pip && \
-    pip install --upgrade --no-cache-dir "git+https://github.com/huggingface/transformers.git" && \
-    pip install pandas sqlalchemy xformers==0.0.29.post3 peft trl==0.15.2 peft accelerate bitsandbytes ollama && \
+    pip install --upgrade --no-cache-dir "git+https://github.com/huggingface/transformers@v4.49.0-Gemma-3" && \
+    pip install pandas sqlalchemy xformers==0.0.29.post3 peft trl==0.15.2 accelerate bitsandbytes ollama && \
     pip install "unsloth[cu124-ampere-torch250] @ git+https://github.com/unslothai/unsloth.git"
     
 # Add llama.cpp instructions
