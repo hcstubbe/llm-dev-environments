@@ -12,14 +12,12 @@ RUN apt-get update && apt-get install -y \
 # Download and install Ollama
 RUN wget -qO - https://ollama.com/install.sh | bash
 
-# Disable Flash Attention for compatibility
-ENV FLASH_ATTN_DISABLE=1
-
 # Install Python packages
 RUN pip install --upgrade pip && \
     pip install --upgrade --no-cache-dir "git+https://github.com/huggingface/transformers@v4.49.0-Gemma-3" && \
     pip install pandas sqlalchemy xformers==0.0.29.post3 peft trl==0.15.2 accelerate bitsandbytes ollama && \
-    pip install "unsloth[cu124-ampere-torch250] @ git+https://github.com/unslothai/unsloth.git"
+    pip install "unsloth[cu124-ampere-torch250] @ git+https://github.com/unslothai/unsloth.git" && \
+    pip uninstall flash-attn
     
 # Add llama.cpp instructions
 RUN mkdir -p /home/defaultuser/ && \
