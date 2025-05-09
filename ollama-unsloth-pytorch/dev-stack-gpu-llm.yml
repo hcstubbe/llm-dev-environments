@@ -1,6 +1,6 @@
 services:      
   unsloth:
-    image: hstubbe/ollama_unsloth:pytorch2.5.0-cuda12.4-cudnn9-devel-v5.2
+    image: hstubbe/ollama_unsloth:pytorch2.5.0-cuda12.4-cudnn9-devel-v5.3
     restart: always
     networks:
       - llm-net-dev
