@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:2.5.0-cuda12.4-cudnn9-devel
+FROM unsloth/unsloth:latest
                      
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -9,23 +9,21 @@ RUN apt-get update && apt-get install -y \
     gnupg2 \
     && rm -rf /var/lib/apt/lists/*
 
+# Install NVIDIA Container Toolkit
+ENV NVIDIA_CONTAINER_TOOLKIT_VERSION=1.17.8-1
+RUN apt-get update && apt-get install -y \
+    nvidia-container-toolkit=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+    nvidia-container-toolkit-base=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+    libnvidia-container-tools=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+    libnvidia-container1=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+    && rm -rf /var/lib/apt/lists/*
+
 # Download and install Ollama
 RUN wget -qO - https://ollama.com/install.sh | bash
 
 # Install Python packages
 RUN pip install --upgrade pip && \
-    pip install --upgrade --no-cache-dir "git+https://github.com/huggingface/transformers@v4.49.0-Gemma-3" && \
-    pip install pandas sqlalchemy xformers==0.0.29.post3 peft trl==0.15.2 accelerate bitsandbytes ollama && \
-    pip install "unsloth[cu124-ampere-torch250] @ git+https://github.com/unslothai/unsloth.git" && \
-    pip uninstall -y flash-attn
-    
-# Add llama.cpp instructions
-RUN mkdir -p /home/defaultuser/ && \
-    cd /home/defaultuser/ && \
-    git clone https://github.com/ggerganov/llama.cpp && \
-    cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=ON -DGGML_CUDA=ON -DLLAMA_CURL=ON && \
-    cmake --build llama.cpp/build --config Release -j --clean-first --target llama-quantize llama-cli llama-gguf-split && \
-    cp llama.cpp/build/bin/llama-* ./llama.cpp/
+    pip install pandas sqlalchemy ollama
 
 # Create a default user and adjust directory ownership for proper access
 RUN useradd -ms /bin/bash defaultuser && \
