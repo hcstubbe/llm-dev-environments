@@ -1,4 +1,7 @@
 FROM unsloth/unsloth:latest
+
+# Switch to root for package installation
+USER root
                      
 # Install dependencies
 RUN apt-get update && apt-get install -y \
