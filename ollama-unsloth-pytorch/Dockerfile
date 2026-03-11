@@ -13,12 +13,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install NVIDIA Container Toolkit
-ENV NVIDIA_CONTAINER_TOOLKIT_VERSION=1.17.8-1
 RUN apt-get update && apt-get install -y \
-    nvidia-container-toolkit=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
-    nvidia-container-toolkit-base=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
-    libnvidia-container-tools=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
-    libnvidia-container1=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+    nvidia-container-toolkit \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install Ollama
@@ -26,7 +22,7 @@ RUN wget -qO - https://ollama.com/install.sh | bash
 
 # Install Python packages
 RUN pip install --upgrade pip && \
-    pip install pandas sqlalchemy ollama
+    pip install pandas sqlalchemy ollama bitsandbytes
 
 # Create a default user and adjust directory ownership for proper access
 RUN useradd -ms /bin/bash defaultuser && \
