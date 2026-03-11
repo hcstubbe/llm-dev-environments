@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # Script to build, tag, and push a Docker image for ollama_unsloth with PyTorch.
 
 # Example usage:
@@ -10,9 +12,41 @@
 # This script builds a Docker image for ollama_unsloth with PyTorch, tags it, and pushes it to Docker Hub.
 
 # Input arguments
-VERSION=$1
-OWNER=$2
-OPTIONS=$3
+VERSION=${1:-}
+OWNER=${2:-}
+
+if [ "$#" -ge 2 ]; then
+  shift 2
+else
+  shift $#
+fi
+
+BUILD_ARGS=("$@")
+IMAGE_REF="$OWNER/ollama_unsloth"
+
+push_with_retry() {
+  local image_ref=$1
+  local max_attempts=${PUSH_RETRIES:-5}
+  local delay=${PUSH_RETRY_DELAY:-30}
+  local attempt=1
+
+  while [ "$attempt" -le "$max_attempts" ]; do
+    echo "Pushing $image_ref (attempt $attempt/$max_attempts) ..."
+    if docker push "$image_ref"; then
+      return 0
+    fi
+
+    if [ "$attempt" -eq "$max_attempts" ]; then
+      echo "Error: Docker push failed for $image_ref after $max_attempts attempts."
+      return 1
+    fi
+
+    echo "Push failed for $image_ref. Retrying in ${delay}s ..."
+    sleep "$delay"
+    attempt=$((attempt + 1))
+    delay=$((delay * 2))
+  done
+}
 
 # Check if VERSION is provided
 if [ -z "$VERSION" ]; then
@@ -29,34 +63,16 @@ fi
 
 # Build the Docker image
 echo "Building Docker image version $VERSION ..."
-docker build $OPTIONS -t $OWNER/ollama_unsloth:$VERSION -f Dockerfile .
-if [ $? -ne 0 ]; then
-  echo "Error: Docker build failed."
-  exit 1
-fi
+docker build "${BUILD_ARGS[@]}" -t $IMAGE_REF:$VERSION -f Dockerfile .
 
 # Tag the image as 'latest'
 echo "Tagging Docker image as 'latest'..."
-docker tag $OWNER/ollama_unsloth:$VERSION $OWNER/ollama_unsloth:latest
-if [ $? -ne 0 ]; then
-  echo "Error: Docker tag failed."
-  exit 1
-fi
+docker tag $IMAGE_REF:$VERSION $IMAGE_REF:latest
 
 # Push the versioned image
-echo "Pushing versioned Docker image..."
-docker push $OWNER/ollama_unsloth:$VERSION
-if [ $? -ne 0 ]; then
-  echo "Error: Docker push for versioned image failed."
-  exit 1
-fi
+push_with_retry $IMAGE_REF:$VERSION
 
 # Push the 'latest' image
-echo "Pushing 'latest' Docker image..."
-docker push $OWNER/ollama_unsloth:latest
-if [ $? -ne 0 ]; then
-  echo "Error: Docker push for 'latest' image failed."
-  exit 1
-fi
+push_with_retry $IMAGE_REF:latest
 
 echo "Docker image build, tag, and push completed successfully."
