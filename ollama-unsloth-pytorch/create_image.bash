@@ -29,7 +29,7 @@ fi
 
 # Build the Docker image
 echo "Building Docker image version $VERSION ..."
-docker build $OPTIONS -t $OWNER/ollama_unsloth:pytorch2.5.0-cuda12.4-cudnn9-devel-$VERSION -f Dockerfile .
+docker build $OPTIONS -t $OWNER/ollama_unsloth:$VERSION -f Dockerfile .
 if [ $? -ne 0 ]; then
   echo "Error: Docker build failed."
   exit 1
@@ -37,7 +37,7 @@ fi
 
 # Tag the image as 'latest'
 echo "Tagging Docker image as 'latest'..."
-docker tag $OWNER/ollama_unsloth:pytorch2.5.0-cuda12.4-cudnn9-devel-$VERSION $OWNER/ollama_unsloth:pytorch2.5.0-cuda12.4-cudnn9-devel-latest
+docker tag $OWNER/ollama_unsloth:$VERSION $OWNER/ollama_unsloth:latest
 if [ $? -ne 0 ]; then
   echo "Error: Docker tag failed."
   exit 1
@@ -45,7 +45,7 @@ fi
 
 # Push the versioned image
 echo "Pushing versioned Docker image..."
-docker push $OWNER/ollama_unsloth:pytorch2.5.0-cuda12.4-cudnn9-devel-$VERSION
+docker push $OWNER/ollama_unsloth:$VERSION
 if [ $? -ne 0 ]; then
   echo "Error: Docker push for versioned image failed."
   exit 1
@@ -53,7 +53,7 @@ fi
 
 # Push the 'latest' image
 echo "Pushing 'latest' Docker image..."
-docker push $OWNER/ollama_unsloth:pytorch2.5.0-cuda12.4-cudnn9-devel-latest
+docker push $OWNER/ollama_unsloth:latest
 if [ $? -ne 0 ]; then
   echo "Error: Docker push for 'latest' image failed."
   exit 1
