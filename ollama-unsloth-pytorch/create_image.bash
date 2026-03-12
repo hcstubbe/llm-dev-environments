@@ -63,7 +63,7 @@ fi
 
 # Build the Docker image
 echo "Building Docker image version $VERSION ..."
-docker build "${BUILD_ARGS[@]}" -t $IMAGE_REF:$VERSION -f Dockerfile .
+docker build "${BUILD_ARGS[@]}" --no-cache -t $IMAGE_REF:$VERSION -f Dockerfile .
 
 # Tag the image as 'latest'
 echo "Tagging Docker image as 'latest'..."
